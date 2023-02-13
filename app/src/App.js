@@ -17,19 +17,37 @@ const provider = new ethers.providers.Web3Provider(window.ethereum);
 
 export async function submitTransaction(MultiSig_CA,_destination,_value, abi, signer) {
 
-   const MultiSigContract = new ethers.Contract(MultiSig_CA, abi, signer);
+  const MultiSigContract = new ethers.Contract(MultiSig_CA, abi, signer);
 
-   const approveTxn  = await MultiSigContract.submitTransaction(_destination,_value);
+  const approveTxn  = await MultiSigContract.submitTransaction(_destination,_value);
 
   await approveTxn.wait();
-
   document.getElementById("approveTxn").innerHTML = "Getting Transaction Id..";
   
-  const transactionId = await MultiSigContract.connect(signer).required();
-
-  await transactionId.wait();
+  const transactionId = await MultiSigContract.transactionCount();
 
   document.getElementById("approveTxn").innerHTML = transactionId;
+}
+
+
+export async function isConfirmed(MultiSig_CA, TXID, abi, signer) {
+
+  const MultiSigContract = new ethers.Contract(MultiSig_CA, abi, signer);
+
+  const confirmed  = await MultiSigContract.isConfirmed(TXID);
+   document.getElementById("confirmed" + MultiSig_CA + TXID).innerHTML = confirmed;
+
+  if (confirmed) {
+    let element = document.getElementById("buttonconfirmed" + MultiSig_CA + TXID);
+     element.setAttribute("hidden", "hidden");
+  }
+
+  const confirmationCount  = await MultiSigContract.getConfirmationsCount(TXID);
+  document.getElementById("confirmedCount" + MultiSig_CA + TXID).innerHTML = confirmationCount;
+
+  const required  = await MultiSigContract.required();
+  document.getElementById("required" + MultiSig_CA + TXID).innerHTML = required;
+
 }
 
 /*
@@ -37,7 +55,6 @@ export async function submitTransaction(MultiSig_CA,_destination,_value, abi, si
 export async function executeTransaction(MultiSigContract, signer) {
 
   const approveTxn = await MultiSigContract.connect(signer).
-  executeTransaction(1);
 
   await approveTxn.wait();
 }
@@ -46,10 +63,28 @@ export async function executeTransaction(MultiSigContract, signer) {
 
 export async function confirmTransaction(MultiSig_CA, TXID, abi, signer) {
 
+
   const MultiSigContract = new ethers.Contract(MultiSig_CA, abi, signer);
 
   const tx  = await MultiSigContract.confirmTransaction(TXID);
   await tx.wait();
+
+  // if sucessfull update
+
+  if (tx) {
+
+      const confirmed  = await MultiSigContract.isConfirmed(TXID);
+      document.getElementById("confirmed" + MultiSig_CA + TXID).innerHTML = confirmed;
+
+      if (confirmed) {
+        let element = document.getElementById("buttonconfirmed" + MultiSig_CA + TXID);
+        element.setAttribute("hidden", "hidden");
+      }
+
+      const confirmationCount  = await MultiSigContract.getConfirmationsCount(TXID);
+      document.getElementById("confirmedCount" + MultiSig_CA + TXID).innerHTML = confirmationCount;
+
+  }
 
 }
 
@@ -68,7 +103,7 @@ function App() {
 
       setAccount(accounts[0]);
       setSigner(provider.getSigner());
-      setShortAccount(".." + accounts[0].slice(-4) + "".toUpperCase());
+      setShortAccount(".." + accounts[0].slice(-4).toUpperCase());
     }
 
     getAccounts();
@@ -122,10 +157,20 @@ function App() {
             element.removeAttribute("hidden");
           }
 
+           isConfirmed(searchCA,searchTXID,abi,signer);
+
+           let proposalConfirmed = "confirmed" + searchCA + searchTXID;
+           let buttonConfirm = "buttonconfirmed" + searchCA + searchTXID;
+           let confirmedCount = "confirmedCount" + searchCA + searchTXID;
+           let required = "required" + searchCA + searchTXID;
+
           const search = {
             searchCA,
             searchTXID,
-            
+            proposalConfirmed,
+            buttonConfirm,
+            confirmedCount,
+            required,
             handleConfirmTransaction: async () => {
               await confirmTransaction(searchCA, searchTXID, abi, signer);
             }
@@ -263,7 +308,7 @@ function App() {
             newContract();
           }}
         >
-          Deploy
+          Create Contract
         </div>
       </div>
 

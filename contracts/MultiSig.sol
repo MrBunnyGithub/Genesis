@@ -15,9 +15,9 @@ contract MultiSig {
     mapping(uint => Transaction) public transactions;
     mapping(uint => mapping(address => bool)) public confirmations;
 
-    receive() payable external {
-        
-    }
+    event ExecuteTransaction(uint transactionId);
+
+    receive() payable external { }
 
     function executeTransaction(uint transactionId) public {
         require(isConfirmed(transactionId));
@@ -25,6 +25,7 @@ contract MultiSig {
         (bool success, ) = _tx.destination.call{ value: _tx.value }("");
         require(success);
         _tx.executed = true;
+        emit ExecuteTransaction(transactionId);
     }
 
     function isConfirmed(uint transactionId) public view returns(bool) {
@@ -50,7 +51,7 @@ contract MultiSig {
         return false;
     }
 
-    function submitTransaction(address payable dest, uint value) external {
+    function submitTransaction(address payable dest, uint value) external returns (uint _transactionId) {
         uint id = addTransaction(dest, value);
         confirmTransaction(id);
         _transactionId = id;
@@ -70,8 +71,9 @@ contract MultiSig {
         return transactionCount - 1;
     }
 
-    constructor(address[] memory _owners, uint _confirmations) payable {
+    constructor(address[] memory _owners, uint _confirmations) {
         require(_owners.length > 0);
+        require(_owners.length <= 5, "Ownly 5 Signers Allowed");
         require(_confirmations > 0);
         require(_confirmations <= _owners.length);
         owners = _owners;
