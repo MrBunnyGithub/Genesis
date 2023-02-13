@@ -50,10 +50,10 @@ contract MultiSig {
         return false;
     }
 
-    function submitTransaction(address payable dest, uint value) external returns(uint _transactionId) {
+    function submitTransaction(address payable dest, uint value) external {
         uint id = addTransaction(dest, value);
         confirmTransaction(id);
-        return _transactionId;
+        _transactionId = id;
     }
 
     function confirmTransaction(uint transactionId) public {

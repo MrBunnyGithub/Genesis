@@ -5,10 +5,7 @@ export default function MultiSig({
   address3,
   address4,
   address5,
-  required,
-  handleAddTransaction,
-  handleExecuteTransaction,
-  handleConfirmTransaction
+  required
   
 }) {
   return (
@@ -43,7 +40,18 @@ export default function MultiSig({
           <div> {required} </div>
         </li>
 
-        <label>
+  
+
+      </ul>
+    </div>
+  );
+}
+
+/*
+
+<div
+
+      <label>
           Send to Address:
           <input type="text" id="_destination" />
         </label>
@@ -74,14 +82,6 @@ export default function MultiSig({
           <div id="approveTxn"> </div>
         </li>
 
-      </ul>
-    </div>
-  );
-}
-
-/*
-
-<div
           className="button"
           id={address}
           onClick={(e) => {

@@ -12,7 +12,7 @@ body {
 .contract, .existing-contracts {
   margin: 20px;
   float: left;
-  padding: 40px;
+  padding: 20px;
   border: 1px solid #ddd;
   background-color: #fff;
 }
