@@ -5,6 +5,13 @@ import MultiSig from './MultiSig';
 
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 
+  async function connectWallet() {
+      document.getElementById("wallet").innerHTML = "Connect Wallet";
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const account = await(provider.send("eth_requestAccounts",[]));
+      //return account;
+    }
+
 export async function submitTransaction(MultiSigContract, signer) {
 
   const _destination = document.getElementById('_destination').value;
@@ -45,9 +52,12 @@ export async function confirmTransaction(MultiSigContract, signer) {
 }
 
 function App() {
+
   const [multiSigs, setMultisig] = useState([]);
   const [account, setAccount] = useState();
+  const [shortAccount, setShortAccount] = useState();
   const [signer, setSigner] = useState();
+  
 
   useEffect(() => {
     async function getAccounts() {
@@ -55,10 +65,13 @@ function App() {
 
       setAccount(accounts[0]);
       setSigner(provider.getSigner());
+      setShortAccount(".." + accounts[0].slice(-4) + "".toUpperCase());
     }
 
     getAccounts();
   }, [account]);
+
+
 
   async function newContract() {
 
@@ -127,8 +140,17 @@ function App() {
 
   return (
     <>
+      
+<div class="float-container">
       <div className="contract">
+
+
         <h1> Create Multisig Contract </h1>
+
+
+         <h4> Connected Wallet:  {shortAccount} </h4>
+   
+
         <label>
           Address 1 *
           <input type="text" id="address1" />
@@ -177,13 +199,15 @@ function App() {
       </div>
 
       <div className="existing-contracts">
-        <h1> Existing Contracts </h1>
+        <h1> Launched Contracts </h1>
 
         <div id="container">
           {multiSigs.map((multiSig) => {
             return <MultiSig key={multiSig.address} {...multiSig} />;
           })}
         </div>
+      </div>
+
       </div>
     </>
   );

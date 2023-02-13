@@ -19,37 +19,37 @@ export default function MultiSig({
           <div> {address} </div>
         </li>
         <li>
-          <div> Address 1 </div>
+          <div> Address 1: </div>
           <div> {address1} </div>
         </li>
         <li>
-          <div> Address 2 </div>
+          <div> Address 2: </div>
           <div> {address2} </div>
         </li>
         <li>
-          <div> Address 3 </div>
+          <div> Address 3: </div>
           <div> {address3} </div>
         </li>
           <li>
-          <div> Address 4 </div>
+          <div> Address 4: </div>
           <div> {address4} </div>
         </li>
           <li>
-          <div> Address 5 </div>
+          <div> Address 5: </div>
           <div> {address5} </div>
         </li>
          <li>
-          <div> Required Signatures </div>
+          <div> Required Signers </div>
           <div> {required} </div>
         </li>
 
         <label>
-          Destination
+          Send to Address:
           <input type="text" id="_destination" />
         </label>
 
         <label>
-          Value
+          Amount to Send (GWEI):
           <input type="text" id="_value" />
         </label>
 
@@ -62,7 +62,7 @@ export default function MultiSig({
             handleAddTransaction();
           }}
         >
-          Add Transaction
+          Propose Transaction
         </div>
 
           <label id ="error2">
@@ -70,12 +70,18 @@ export default function MultiSig({
 
 
         <li>
-          <div> Transaction Id </div>
+          <div> Transaction Id: </div>
           <div id="approveTxn"> </div>
         </li>
 
+      </ul>
+    </div>
+  );
+}
 
-        <div
+/*
+
+<div
           className="button"
           id={address}
           onClick={(e) => {
@@ -99,10 +105,4 @@ export default function MultiSig({
           Execute Transaction
         </div>
 
-
-
-
-      </ul>
-    </div>
-  );
-}
+*/
