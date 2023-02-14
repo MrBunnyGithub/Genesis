@@ -1,5 +1,9 @@
 # Genesis
 
+What is Genesis?
+
+A Multi Signature Contract Creator , like Gnosis
+
 Step 1. 
 
 Download Repository or git clone https://github.com/MrBunnyGithub/Genesis.git
