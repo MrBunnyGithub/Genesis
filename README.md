@@ -2,7 +2,7 @@
 
 Step 1. 
 
-Download Repository
+Download Repository or git clone ""
 
 Step 2.
 
