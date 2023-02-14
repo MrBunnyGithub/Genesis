@@ -2,9 +2,9 @@
 
 What is Genesis?
 
-Genesis is a multisig dapp. Similar to Gnosis.
+An Interactive Multi Signature DAPP. Similar to Gnosis.
 
-<img width="1680" alt="image" src="https://user-images.githubusercontent.com/121989824/218737868-dc301d54-9f61-4c68-bd9b-d7afe4c8ac71.png">
+<img width="1398" alt="image" src="https://user-images.githubusercontent.com/121989824/218742474-fcab91ec-6ae5-423a-8e5b-5290edff75b0.png">
 
 Step 1. 
 
