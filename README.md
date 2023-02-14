@@ -2,7 +2,7 @@
 
 Step 1. 
 
-Download Repository or git clone ""
+Download Repository or git clone https://github.com/MrBunnyGithub/Genesis.git
 
 Step 2.
 
