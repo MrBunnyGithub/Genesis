@@ -17,3 +17,6 @@ cd app
 npm start
 
 ```
+
+<img width="601" alt="image" src="https://user-images.githubusercontent.com/121989824/218744236-6696356c-0e10-42c5-b8d3-fb2b17a1138a.png">
+
