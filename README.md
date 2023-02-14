@@ -4,7 +4,7 @@ What is Genesis?
 
 Genesis is a multisig dapp. Similar to Gnosis.
 
-[![Watch the video](https://i.imgur.com/vKb2F1B.png)](https://youtu.be/vt5fpE0bzSY)
+[![Watch the video]([https://i.imgur.com/vKb2F1B.png](https://i.ibb.co/bvqY7VV/Screenshot-2023-02-14-at-11-18-39-pm.png))](https://youtu.be/vt5fpE0bzSY)
 
 Step 1. 
 
