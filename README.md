@@ -21,5 +21,3 @@ cd app
 npm start
 
 ```
-
-# Genesis
