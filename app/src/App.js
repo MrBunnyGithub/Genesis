@@ -5,8 +5,10 @@ import MultiSig from './MultiSig';
 import Search from './Search';
 import Proposal from './Proposal';
 
+// Import Genesis Api
 
-const abi = [{"inputs":[{"internalType":"address[]","name":"_owners","type":"address[]"},{"internalType":"uint256","name":"_confirmations","type":"uint256"}],"stateMutability":"payable","type":"constructor"},{"inputs":[{"internalType":"address payable","name":"destination","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"addTransaction","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"transactionId","type":"uint256"}],"name":"confirmTransaction","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"address","name":"","type":"address"}],"name":"confirmations","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"transactionId","type":"uint256"}],"name":"executeTransaction","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"transactionId","type":"uint256"}],"name":"getConfirmationsCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"transactionId","type":"uint256"}],"name":"isConfirmed","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"owners","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"required","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address payable","name":"dest","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"submitTransaction","outputs":[{"internalType":"uint256","name":"_transactionId","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"transactionCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"transactions","outputs":[{"internalType":"address payable","name":"destination","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"},{"internalType":"bool","name":"executed","type":"bool"}],"stateMutability":"view","type":"function"},{"stateMutability":"payable","type":"receive"}];
+import Genesis from './artifacts/contracts/Genesis.sol/Genesis';
+const abi = Genesis.abi;
 
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 
@@ -48,6 +50,29 @@ export async function isConfirmed(MultiSig_CA, TXID, abi, signer) {
 
   const required  = await MultiSigContract.required();
   document.getElementById("required" + MultiSig_CA + TXID).innerHTML = required;
+  
+  
+  
+  const ownerCount  = await MultiSigContract.getOwnerCount();
+
+  let owner, idNum;
+  let owners = "";
+
+  for (let i =0 ; i < ownerCount; i++) {
+    owner = await MultiSigContract.owners([i]);
+    idNum = i + 1;
+    owners =owners + "<br>" +  idNum + ": " +  owner;
+  };
+
+  document.getElementById("signers" + MultiSig_CA + TXID).innerHTML = owners;
+  
+  const destination  = await MultiSigContract.getTxDestination(TXID);
+  console.log(destination);
+  document.getElementById("destination" + MultiSig_CA + TXID).innerHTML = destination;
+
+  const value  = await MultiSigContract.getTxValue(TXID);
+  console.log(value);
+  document.getElementById("value" + MultiSig_CA + TXID).innerHTML = value + " GWEI";
 
 }
 
@@ -150,8 +175,6 @@ function App() {
 
         setProposal([...proposals, proposal]);
 
-        // 0xa493a3716b68c5643ae14f18b745c96a27829bc8
-
       }
 
       
@@ -178,11 +201,14 @@ function App() {
           }
 
            isConfirmed(searchCA,searchTXID,abi,signer);
-
+           
            let proposalConfirmed = "confirmed" + searchCA + searchTXID;
            let buttonConfirm = "buttonconfirmed" + searchCA + searchTXID;
            let confirmedCount = "confirmedCount" + searchCA + searchTXID;
            let required = "required" + searchCA + searchTXID;
+           let signers = "signers"  + searchCA + searchTXID;
+           let destination = "destination"  + searchCA + searchTXID;
+           let value = "value"  + searchCA + searchTXID;
 
           const search = {
             searchCA,
@@ -191,6 +217,9 @@ function App() {
             buttonConfirm,
             confirmedCount,
             required,
+            signers,
+            destination,
+            value,
             handleConfirmTransaction: async () => {
               await confirmTransaction(searchCA, searchTXID, abi, signer);
             }
@@ -282,11 +311,11 @@ function App() {
         <h1> Create Genesis Contract</h1>
          <h4> Connected Wallet:  {shortAccount} </h4>
         <label>
-          Address 1 *
+          Address 1 
           <input type="text" id="address1" />
         </label>
           <label>
-          Address 2 *
+          Address 2 
           <input type="text" id="address2" />
         </label>
            <label>
@@ -302,7 +331,7 @@ function App() {
           <input type="text" id="address5" />
         </label>
         <label>
-         Required Signers *
+         Required Signers
           <input type="text" id="required"  placeholder=""/>
         </label>
           <label id ="error1">
@@ -418,7 +447,7 @@ function App() {
       </div>
 
          <div className="existing-contracts" id="proposals" hidden>
-          <h1> Proposals </h1>
+          <h1> Searched Proposals </h1>
           <h4> Connected Wallet:  {shortAccount} </h4>
         <div id="container">
           {searchs.map((search) => {
@@ -427,17 +456,6 @@ function App() {
         </div>
         </div>
 
-       
-
-         <div className="existing-contracts" id="proposals" hidden>
-          <h1> Proposals </h1>
-          <h4> Connected Wallet:  {shortAccount} </h4>
-        <div id="container">
-          {searchs.map((search) => {
-            return <Search key={search.searchCA} {...search} />;
-          })}
-        </div>
-        </div>
 
           {/* Search Proposal */}
 

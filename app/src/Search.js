@@ -5,6 +5,9 @@ export default function Search({
   buttonConfirm,
   confirmedCount,
   required,
+  signers,
+  destination,
+  value,
   handleConfirmTransaction
   
 }) {
@@ -15,9 +18,17 @@ export default function Search({
           <div> Contract Address: </div>
           <div> {searchCA} </div>
         </li>
+          <li>
+          <div> Signers: </div>
+          <div id={signers}> </div>
+        </li>
         <li>
-          <div> Transaction Id: </div>
-          <div> {searchTXID} </div>
+          <div> To Send: </div>
+          <div id ={destination}></div>
+        </li>
+          <li>
+          <div> Amount: </div>
+          <div id={value}></div>
         </li>
           <li>
           <div> Confirmed: </div>
@@ -28,6 +39,10 @@ export default function Search({
           <div id ={required}> </div>
         </li>
           <li>
+          <div> Transaction Id: </div>
+          <div> {searchTXID} </div>
+        </li>
+        <li>
           <div> Transaction Executed: </div>
           <div id ={proposalConfirmed}> </div>
         </li>

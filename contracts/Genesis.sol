@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-contract MultiSig {
+contract Genesis {
     address[] public owners;
     uint public transactionCount;
     uint public required;
@@ -15,9 +15,21 @@ contract MultiSig {
     mapping(uint => Transaction) public transactions;
     mapping(uint => mapping(address => bool)) public confirmations;
 
-    event ExecuteTransaction(uint transactionId);
-
     receive() payable external { }
+
+    function getOwnerCount() public view returns (uint) {
+        return owners.length;
+    }
+
+    function getTxDestination(uint transactionId) public view returns (address) {
+        Transaction storage _tx = transactions[transactionId - 1];
+        return _tx.destination; 
+    }
+
+    function getTxValue(uint transactionId) public view returns (uint) {
+        Transaction storage _tx = transactions[transactionId - 1];
+        return _tx.value; 
+    }
 
     function executeTransaction(uint transactionId) public {
         require(isConfirmed(transactionId));
@@ -25,7 +37,6 @@ contract MultiSig {
         (bool success, ) = _tx.destination.call{ value: _tx.value }("");
         require(success);
         _tx.executed = true;
-        emit ExecuteTransaction(transactionId);
     }
 
     function isConfirmed(uint transactionId) public view returns(bool) {
