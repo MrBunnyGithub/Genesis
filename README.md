@@ -1,9 +1,5 @@
 # Genesis
 
-What is Genesis?
-
-An Interactive Multi Signature DAPP. Similar to Gnosis.
-
 <img width="1398" alt="image" src="https://user-images.githubusercontent.com/121989824/218742474-fcab91ec-6ae5-423a-8e5b-5290edff75b0.png">
 
 Step 1. 
