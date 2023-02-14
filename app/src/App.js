@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import deploy from './deploy';
 import MultiSig from './MultiSig';
 import Search from './Search';
+import Proposal from './Proposal';
+
 
 const abi = [{"inputs":[{"internalType":"address[]","name":"_owners","type":"address[]"},{"internalType":"uint256","name":"_confirmations","type":"uint256"}],"stateMutability":"payable","type":"constructor"},{"inputs":[{"internalType":"address payable","name":"destination","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"addTransaction","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"transactionId","type":"uint256"}],"name":"confirmTransaction","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"address","name":"","type":"address"}],"name":"confirmations","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"transactionId","type":"uint256"}],"name":"executeTransaction","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"transactionId","type":"uint256"}],"name":"getConfirmationsCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"transactionId","type":"uint256"}],"name":"isConfirmed","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"owners","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"required","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address payable","name":"dest","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"submitTransaction","outputs":[{"internalType":"uint256","name":"_transactionId","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"transactionCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"transactions","outputs":[{"internalType":"address payable","name":"destination","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"},{"internalType":"bool","name":"executed","type":"bool"}],"stateMutability":"view","type":"function"},{"stateMutability":"payable","type":"receive"}];
 
@@ -15,18 +17,17 @@ const provider = new ethers.providers.Web3Provider(window.ethereum);
       //return account;
     }
 
-export async function submitTransaction(MultiSig_CA,_destination,_value, abi, signer) {
+export async function submitTransaction(MultiSig_CA,_destination,_value, setTXID, abi, signer) {
 
   const MultiSigContract = new ethers.Contract(MultiSig_CA, abi, signer);
 
   const approveTxn  = await MultiSigContract.submitTransaction(_destination,_value);
 
   await approveTxn.wait();
-  document.getElementById("approveTxn").innerHTML = "Getting Transaction Id..";
   
   const transactionId = await MultiSigContract.transactionCount();
 
-  document.getElementById("approveTxn").innerHTML = transactionId;
+  document.getElementById(setTXID).innerHTML = transactionId;
 }
 
 
@@ -49,17 +50,6 @@ export async function isConfirmed(MultiSig_CA, TXID, abi, signer) {
   document.getElementById("required" + MultiSig_CA + TXID).innerHTML = required;
 
 }
-
-/*
-
-export async function executeTransaction(MultiSigContract, signer) {
-
-  const approveTxn = await MultiSigContract.connect(signer).
-
-  await approveTxn.wait();
-}
-
-*/
 
 export async function confirmTransaction(MultiSig_CA, TXID, abi, signer) {
 
@@ -88,14 +78,20 @@ export async function confirmTransaction(MultiSig_CA, TXID, abi, signer) {
 
 }
 
+
+export function handleError(inputBox,error) {
+  document.getElementById(inputBox).innerHTML = "Fill all Required Fields" ;
+  return true;
+}
+
 function App() {
 
   const [multiSigs, setMultisig] = useState([]);
+  const [searchs, setSearch] = useState([]);
+  const [proposals, setProposal] = useState([]);
   const [account, setAccount] = useState();
   const [shortAccount, setShortAccount] = useState();
   const [signer, setSigner] = useState();
-  const [searchs, setSearch] = useState([]);
-  
 
   useEffect(() => {
     async function getAccounts() {
@@ -112,32 +108,56 @@ function App() {
 
     async function submitProposal() {
 
+      const MultiSig_CA = document.getElementById('contractAddressProposal').value;
+      const destination = document.getElementById('_destination').value;
+      let value = document.getElementById('_value').value;
+
       let error = false;
       document.getElementById("error2").innerHTML = "";
 
-      const MultiSig_CA = document.getElementById('contractAddressProposal').value;
-      const _destination = document.getElementById('_destination').value;
-      const _value =  ethers.BigNumber.from(document.getElementById('_value').value);
 
-      if (_destination == "" || ethers.utils.isAddress(_destination) == false) { 
-        document.getElementById("error2").innerHTML = "Invalid Address entered" ;
-        throw new Error("error"); 
-        error = true;
+      if (MultiSig_CA == "" || destination == "" || value == "" ) {
+        error = handleError("error2","Fill all Fields");
+      }
+
+      
+      if (ethers.utils.isAddress(destination) == false) { 
+        error = handleError("error2","Invalid Address entered");
       } 
 
-      if (_value == 0 || _value == "") { 
-        document.getElementById("error2").innerHTML = "Value has to be greater than 0" ;
-        throw new Error("error"); 
-        error = true;
+      if (value <= 0) { 
+          error = handleError("error2", "Value has to be greater than 0");
       } 
 
       
-      if (error == false) { submitTransaction(MultiSig_CA,_destination,_value, abi, signer); }
+      if (error == false) { 
 
-    
+        let element = document.getElementById("submittedProposals");
+        element.removeAttribute("hidden");
+
+        let gweiValue = ethers.BigNumber.from(value);
+        let setTXID = "approveTxn" + MultiSig_CA + destination + value;
+
+        submitTransaction(MultiSig_CA,destination,gweiValue, setTXID, abi, signer); 
+        
+          const proposal = {
+            MultiSig_CA,
+            account,
+            setTXID,
+            destination,
+            value
+            }
+
+        setProposal([...proposals, proposal]);
+
+        // 0xa493a3716b68c5643ae14f18b745c96a27829bc8
+
+      }
+
+      
     }
 
-    async function searchContract() {
+    async function searchProposal() {
 
           let error = false;
 
@@ -180,7 +200,7 @@ function App() {
 
     }
 
-  async function newContract() {
+  async function newGenesis() {
 
     const address1 = document.getElementById('address1').value;
     const address2 = document.getElementById('address2').value;
@@ -236,18 +256,6 @@ function App() {
          await submitTransaction(MultiSigContract, signer);
       },
 
-      
-      /*
-      handleExecuteTransaction: async () => {
-         await executeTransaction(MultiSigContract, signer);
-      },
-
-      handleConfirmTransaction: async () => {
-         await confirmTransaction(MultiSigContract, signer);
-      }
-      */
-
-      
 
     };    
 
@@ -267,10 +275,11 @@ function App() {
     <>
       
 
+{/* Create Contract */}
       
 
       <div className="contract" id="createContract">
-        <h1> Create Multisig Contract </h1>
+        <h1> Create Genesis Contract</h1>
          <h4> Connected Wallet:  {shortAccount} </h4>
         <label>
           Address 1 *
@@ -305,16 +314,13 @@ function App() {
           onClick={(e) => {
             e.preventDefault();
 
-            newContract();
+            newGenesis();
           }}
         >
           Create Contract
         </div>
       </div>
 
-
-
-      
       <div className="existing-contracts" hidden id="launched">
         <h1> Launched Contracts </h1>
 
@@ -324,6 +330,13 @@ function App() {
           })}
         </div>
       </div>
+
+
+      {/* Create Contract */}
+
+
+
+      {/* Submit Proposal */}
 
 
        <div className="existing-contracts">
@@ -344,6 +357,8 @@ function App() {
           <input type="text" id="_value" />
         </label>
 
+          <label id ="error2"></label>
+
            <div
           className="button"
           id=""
@@ -354,31 +369,37 @@ function App() {
           }}
         >
           Propose Transaction
-          </div>
-       
-          
-          <label id ="error2"></label>
-
-
-        
-          <label> Transaction Id: </label>
-          <label id="approveTxn"> </label>
-        
-
         </div>
+        </div>
+          
+
+      <div className="existing-contracts" hidden id="submittedProposals">
+        <h1> Submitted Proposals </h1>
+
+        <div id="container">
+          {proposals.map((proposal) => {
+            return <Proposal key={proposal.address} {...proposal} />;
+          })}
+        </div>
+      </div>
+        
+
+
+        {/* Submit Proposal */}
 
 
 
+        {/* Search Proposal */}
 
 
       <div className="existing-contracts">
         <h1> Search Proposal </h1>
         <label>
-          Contract Address *
+          Contract Address:
           <input type="text" id="contractAddress" />
         </label>
           <label>
-          Transaction Id *
+          Transaction Id:
           <input type="text" id="searchTX" />
         </label>
          <label id ="error3"></label>
@@ -389,7 +410,7 @@ function App() {
           onClick={(e) => {
             e.preventDefault();
 
-            searchContract();
+            searchProposal();
           }}
         >
           Search
@@ -417,6 +438,8 @@ function App() {
           })}
         </div>
         </div>
+
+          {/* Search Proposal */}
 
 
      

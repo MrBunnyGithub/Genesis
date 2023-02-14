@@ -1,4 +1,4 @@
-export default function MultiSig({
+export default function Search({
   searchCA,
   searchTXID,
   proposalConfirmed,
@@ -37,10 +37,9 @@ export default function MultiSig({
           id={buttonConfirm}
           onClick={(e) => {
             e.preventDefault();
-
             handleConfirmTransaction();
           }}
-        >
+          >
           Accept Proposal
         </div>
 
@@ -48,31 +47,3 @@ export default function MultiSig({
     </div>
   );
 }
-
-/*
-
-<div
-          className="button"
-          id={address}
-          onClick={(e) => {
-            e.preventDefault();
-
-            handleConfirmTransaction();
-          }}
-        >
-          Confirm Transaction
-        </div>
-
-        <div
-          className="button"
-          id={address}
-          onClick={(e) => {
-            e.preventDefault();
-
-            handleExecuteTransaction();
-          }}
-        >
-          Execute Transaction
-        </div>
-
-*/
