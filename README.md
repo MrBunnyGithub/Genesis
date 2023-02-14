@@ -2,7 +2,7 @@
 
 What is Genesis?
 
-A Multi Signature Contract Creator , like Gnosis
+Genesis is a multisig dapp. Similar to Gnosis.
 
 Step 1. 
 
